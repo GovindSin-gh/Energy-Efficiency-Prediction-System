@@ -1,0 +1,6 @@
+fastapi[all]
+uvicorn
+scikit-learn
+pydantic
+numpy
+pandas

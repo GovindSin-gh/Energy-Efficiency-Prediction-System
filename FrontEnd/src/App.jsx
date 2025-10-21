@@ -8,6 +8,11 @@ export default function App() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  
+  const onRefresh = () => {
+    setError(null);
+    setResult(null);
+  }
 
   const handlePrediction = async (data) => {
     setLoading(true);
@@ -24,18 +29,19 @@ export default function App() {
     }
   };
 
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <PredictionForm onSubmit={handlePrediction} loading={loading} />
+      <div className="container mx-auto px-4 py-8 ">
+       {!(error || result) && <PredictionForm onSubmit={handlePrediction} loading={loading} /> } 
         {error && (
           <div className="mt-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md">
             <p className="font-medium">Error:</p>
             <p>{error}</p>
           </div>
         )}
-        {result && <ResultCard result={result} />}
+        {result && <ResultCard result={result} refresh = {onRefresh} />}
       </div>
     </div>
   );

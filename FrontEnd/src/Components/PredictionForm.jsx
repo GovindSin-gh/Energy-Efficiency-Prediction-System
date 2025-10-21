@@ -2,114 +2,264 @@ import { useState } from 'react';
 
 export default function PredictionForm({ onSubmit, loading }) {
     const [formData, setFormData] = useState({
-        Relative_Compactness: '',
-        Surface_Area: '',
-        Wall_Area: '',
-        Roof_Area: '',
-        Overall_Height: '',
-        Orientation: '',
-        Glazing_Area: '',
-        Glazing_Area_Distribution: ''
+        relative_compactness: 0.80,
+        surface_area: 660,
+        wall_area: 330,
+        roof_area: 165,
+        overall_height: 3.5,
+        orientation: 2,
+        glazing_area: 0.1,
+        glazing_area_distribution: 0
     });
 
-    const [errors, setErrors] = useState({});
-
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-        setErrors({
-            ...errors,
-            [e.target.name]: ''
-        });
+    const getCompactnessLevel = (value) => {
+        if (value >= 0.62 && value <= 0.72) return 'Low';
+        if (value >= 0.73 && value <= 0.85) return 'Medium';
+        if (value >= 0.86 && value <= 0.98) return 'High';
+        return '';
     };
 
-    const validate = () => {
-        const newErrors = {};
-        Object.keys(formData).forEach(key => {
-            if (!formData[key]) {
-                newErrors[key] = 'Required';
-            } else if (isNaN(formData[key])) {
-                newErrors[key] = 'Must be numeric';
-            }
+    const handleChange = (name, value) => {
+        setFormData({
+            ...formData,
+            [name]: parseFloat(value)
         });
-        return newErrors;
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const validationErrors = validate();
-        if (Object.keys(validationErrors).length > 0) {
-            setErrors(validationErrors);
-            return;
-        }
-
-        const payload = {};
-
-        Object.keys(formData).forEach(key => {
-            if (key === 'Orientation' || key === 'Glazing_Area_Distribution') {
-                payload[key.toLowerCase()] = parseInt(formData[key]);
-            } else {
-                payload[key.toLowerCase()] = parseFloat(formData[key]);
-            }
-        });
-        console.log(payload);
-        onSubmit(payload);
+        onSubmit(formData);
     };
 
-    const inputFields = [
-        { name: 'Relative_Compactness', label: 'Relative Compactness', min: 0.5, max: 1.0, step: 'any' }, // float
-        { name: 'Surface_Area', label: 'Surface Area', min: 400, max: 900, step: 'any' }, // float
-        { name: 'Wall_Area', label: 'Wall Area', min: 200, max: 500, step: 'any' }, // float
-        { name: 'Roof_Area', label: 'Roof Area', min: 100, max: 300, step: 'any' }, // float
-        { name: 'Overall_Height', label: 'Overall Height', min: 3, max: 10, step: 'any' },
-        { name: 'Orientation', label: 'Orientation', min: 1, max: 4, step: 'any' }, // int
-        { name: 'Glazing_Area', label: 'Glazing Area', min: 0, max: 0.4, step: 'any' }, // float
-        { name: 'Glazing_Area_Distribution', label: 'Glazing Area Distribution', min: 0, max: 5, step: 'any' } // int
-    ];
-
     return (
-        <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800">Building Parameters</h2>
-            <form onSubmit={handleSubmit}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {inputFields.map(field => (
-                        <div key={field.name}>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                {field.label}
-                            </label>
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6">
+                <h2 className="text-2xl font-bold text-white">Building Parameters</h2>
+                <p className="text-blue-100 mt-1">Enter your building details for energy prediction</p>
+            </div>
+            
+            <form onSubmit={handleSubmit} className="p-8 grid grid-cols-2 gap-10">
+                <div className="space-y-8">
+                    <div className="space-y-3">
+                        <label className="block text-base font-semibold text-gray-800">
+                            How compact is your building's shape?
+                        </label>
+                        <div className="flex items-center gap-4">
                             <input
-                                type="number"
-                                name={field.name}
-                                value={formData[field.name]}
-                                min={field.min}
-                                max={field.max}
-                                step={field.step}
-                                onChange={handleChange}
-                                className={`w-full px-3 py-2 border ${errors[field.name] ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                                placeholder={`Enter ${field.label.toLowerCase()}`}
+                                type="range"
+                                min="0.62"
+                                max="0.98"
+                                step="0.01"
+                                value={formData.relative_compactness}
+                                onChange={(e) => handleChange('relative_compactness', e.target.value)}
+                                className="flex-1 h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                             />
-                            {errors[field.name] && (
-                                <p className="text-red-500 text-xs mt-1">{errors[field.name]}</p>
-                            )}
+                            <div className="w-32 text-right">
+                                <span className="text-lg font-bold text-gray-800">{formData.relative_compactness}</span>
+                                <span className={`block text-sm font-medium ${
+                                    getCompactnessLevel(formData.relative_compactness) === 'Low' ? 'text-green-600' :
+                                    getCompactnessLevel(formData.relative_compactness) === 'Medium' ? 'text-yellow-600' :
+                                    'text-red-600'
+                                }`}>
+                                    {getCompactnessLevel(formData.relative_compactness)}
+                                </span>
+                            </div>
                         </div>
-                    ))}
+                    </div>
+
+                    <div className="space-y-3">
+                        <label className="block text-base font-semibold text-gray-800">
+                            What is the total surface area of your building? (m²)
+                        </label>
+                        <div className="flex items-center gap-4">
+                            <input
+                                type="range"
+                                min="513"
+                                max="808.5"
+                                step="0.5"
+                                value={formData.surface_area}
+                                onChange={(e) => handleChange('surface_area', e.target.value)}
+                                className="flex-1 h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                            />
+                            <span className="text-lg font-bold text-gray-800 w-20 text-right">
+                                {formData.surface_area} m²
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="space-y-3">
+                        <label className="block text-base font-semibold text-gray-800">
+                            What is the total wall area of your building? (m²)
+                        </label>
+                        <div className="flex items-center gap-4">
+                            <input
+                                type="range"
+                                min="245"
+                                max="416.5"
+                                step="0.5"
+                                value={formData.wall_area}
+                                onChange={(e) => handleChange('wall_area', e.target.value)}
+                                className="flex-1 h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                            />
+                            <span className="text-lg font-bold text-gray-800 w-20 text-right">
+                                {formData.wall_area} m²
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="space-y-3">
+                        <label className="block text-base font-semibold text-gray-800">
+                            What is the roof area of your building? (m²)
+                        </label>
+                        <div className="flex items-center gap-4">
+                            <input
+                                type="range"
+                                min="110.25"
+                                max="220.25"
+                                step="0.25"
+                                value={formData.roof_area}
+                                onChange={(e) => handleChange('roof_area', e.target.value)}
+                                className="flex-1 h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                            />
+                            <span className="text-lg font-bold text-gray-800 w-30 text-right">
+                                {formData.roof_area} m²
+                            </span>
+                        </div>
+                    </div>
                 </div>
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="mt-6 w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
-                >
-                    {loading ? (
-                        <div className="flex items-center justify-center">
-                            <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                            Processing...
-                        </div>
-                    ) : (
-                        'Predict'
-                    )}
-                </button>
+
+          {/* Right column */}
+
+               <div className="space-y-6">
+  <div className="space-y-2">
+    <label className="block text-sm font-semibold text-gray-800 mb-2">
+      Is your building single-storey or double-storey?
+    </label>
+    <div className="grid grid-cols-2 gap-3">
+      <button
+        type="button"
+        onClick={() => handleChange('overall_height', 3.5)}
+        className={`py-2 px-4 rounded-lg font-medium text-sm transition-all ${
+          formData.overall_height === 3.5
+            ? 'bg-blue-600 text-white shadow-lg scale-105'
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+        }`}
+      >
+        Single-Storey
+      </button>
+      <button
+        type="button"
+        onClick={() => handleChange('overall_height', 7)}
+        className={`py-2 px-4 rounded-lg font-medium text-sm transition-all ${
+          formData.overall_height === 7
+            ? 'bg-blue-600 text-white shadow-lg scale-105'
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+        }`}
+      >
+        Double-Storey
+      </button>
+    </div>
+  </div>
+
+  <div className="space-y-2">
+    <label className="block text-sm font-semibold text-gray-800 mb-2">
+      Which direction does your building face?
+    </label>
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+      {[
+        { label: 'North', value: 2 },
+        { label: 'East', value: 3 },
+        { label: 'South', value: 4 },
+        { label: 'West', value: 5 },
+      ].map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          onClick={() => handleChange('orientation', option.value)}
+          className={`py-2 px-3 rounded-lg font-medium text-sm transition-all ${
+            formData.orientation === option.value
+              ? 'bg-blue-600 text-white shadow-lg scale-105'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <div className="space-y-2">
+    <label className="block text-sm font-semibold text-gray-800 mb-2">
+      What percentage of your building surface is glass?
+    </label>
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+      {[
+        { label: 'No Glass', value: 0 },
+        { label: 'Small (10%)', value: 0.1 },
+        { label: 'Medium (25%)', value: 0.25 },
+        { label: 'Large (40%)', value: 0.4 },
+      ].map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          onClick={() => handleChange('glazing_area', option.value)}
+          className={`py-2 px-3 rounded-lg font-medium text-sm transition-all ${
+            formData.glazing_area === option.value
+              ? 'bg-blue-600 text-white shadow-lg scale-105'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <div className="space-y-2">
+    <label className="block text-sm font-semibold text-gray-800 mb-2">
+      How is the glass distributed on your building?
+    </label>
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+      {[
+        { label: 'None', value: 0 },
+        { label: 'North Only', value: 1 },
+        { label: 'East Only', value: 2 },
+        { label: 'South Only', value: 3 },
+        { label: 'West Only', value: 4 },
+        { label: 'Uniform', value: 5 },
+      ].map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          onClick={() => handleChange('glazing_area_distribution', option.value)}
+          className={`py-2 px-3 rounded-lg font-medium text-sm transition-all ${
+            formData.glazing_area_distribution === option.value
+              ? 'bg-blue-600 text-white shadow-lg scale-105'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <button
+    type="submit"
+    disabled={loading}
+    className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-xl text-sm hover:from-blue-700 hover:to-blue-800 transition-all disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed font-semibold shadow-lg hover:shadow-xl"
+  >
+    {loading ? (
+      <div className="flex items-center justify-center">
+        <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+        Processing...
+      </div>
+    ) : (
+      'Predict Energy Efficiency'
+    )}
+  </button>
+</div>
+
             </form>
         </div>
     );

@@ -1,14 +1,14 @@
 export default function ResultCard({ result, refresh }) {
     console.log(result);
     const getEfficiencyColor = (efficiency) => {
-        if (efficiency === 'Low') return 'bg-green-100 text-green-800';
+        if (efficiency === 'High') return 'bg-green-100 text-green-800';
         if (efficiency === 'Moderate') return 'bg-yellow-100 text-yellow-800';
         return 'bg-red-100 text-red-800';
     };
 
 
     const getEfficiencyEmoji = (efficiency) => {
-        if (efficiency === 'Low') return '🟢';
+        if (efficiency === 'High') return '🟢';
         if (efficiency === 'Moderate') return '🟡';
         return '🔴';
     };

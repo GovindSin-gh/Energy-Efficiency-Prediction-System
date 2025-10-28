@@ -1,144 +1,199 @@
-# Energy-Efficiency-Prediction-System# ⚡ Energy Efficiency API
+# 🏡 Energy Efficiency Prediction System
 
-A FastAPI-based backend that serves machine learning models to predict **heating load** and **cooling load** of residential buildings using the **Energy Efficiency Dataset (Kaggle)**.  
-The API provides actionable insights by categorizing energy efficiency and offering recommendations to improve building performance.
+A web-based application that predicts the Heating Load and Cooling Load of buildings using a Machine Learning model.  
+This project helps in estimating the energy efficiency of buildings and suggests recommendations to improve performance.
 
 ---
 
 ## 🚀 Features
-- Predict **Heating Load** (kWh/m²) using a Ridge Regression model.
-- Predict **Cooling Load** (kWh/m²) using a Lasso Regression model.
-- Input validation with **Pydantic** (ensures clean and correct data).
-- Preprocessing with **Scaler** to normalize features.
-- Categorized efficiency levels (`Low`, `Moderate`, `High`) with recommendations.
-- Built-in **logging** and **error handling**.
-- **CORS enabled** → ready to connect with MERN/React frontend.
-- Interactive API docs powered by **Swagger UI** at `/docs`.
+
+✔️ User-friendly UI built with React  
+✔️ FastAPI backend for ML model inference  
+✔️ Predicts:
+- Heating Load (y1)
+- Cooling Load (y2)
+
+✔️ Efficiency classification:
+| Efficiency Level | Meaning |
+|----------------|---------|
+| High Efficiency | Optimal performance achieved |
+| Moderate Efficiency | Acceptable, can improve |
+| Low Efficiency | Add insulation |
+
+✔️ Real-time predictions using Axios  
+✔️ Trained using Kaggle **Energy Efficiency Dataset**  
+✔️ Deployed frontend + backend separately
 
 ---
 
-## 📊 Dataset
-- **Name**: [Energy Efficiency Dataset (Kaggle)](https://www.kaggle.com/datasets/elikplim/eergy-efficiency-dataset)  
-- **Features**: Relative compactness, surface area, wall area, roof area, overall height, orientation, glazing area, glazing distribution.  
-- **Targets**: Heating Load, Cooling Load.  
-- Preprocessing:
-  - Standard scaling applied.
-  - Encoded categorical features with `Enum` mapping.
-  - Two ML models trained:
-    - `y1_ridge.pkl` → Heating Load.
-    - `y2_lasso.pkl` → Cooling Load.
+## 🔍 Objective
+
+To provide an instant estimation of building energy performance using ML  
+and help architects/engineers take better design decisions.
+
+---
+
+## 🧠 Machine Learning Model
+
+- Algorithm: **Linear Regression**
+- Libraries Used: `scikit-learn`, `pandas`, `numpy`
+- Trained in Jupyter Notebook
+- Model stored as `.pkl` and loaded in FastAPI
+
+Dataset Source:  
+📌 https://www.kaggle.com/datasets/elikplim/eergy-efficiency-dataset
 
 ---
 
 ## 🛠️ Tech Stack
-- **FastAPI** – API framework
-- **Scikit-learn** – Machine Learning (Ridge & Lasso Regression)
-- **Pydantic** – Input validation
-- **Pickle** – Model serialization
-- **Logging** – Debugging & monitoring
-- **CORS Middleware** – For frontend integration
+
+| Layer | Technology |
+|------|------------|
+| Frontend | React.js, Axios |
+| Backend | FastAPI |
+| ML Model | Scikit-learn |
+| Styling | Tailwind CSS |
+| Deployment | GitHub Pages (Frontend), Render (Backend) |
 
 ---
 
-## ⚙️ Setup & Installation
+## 🔄 System Workflow
 
-Clone the repo:
-```bash
-git clone https://github.com/yourusername/ml-backend.git
-cd ml-backend
-````
+1️⃣ User enters building parameters  
+2️⃣ React sends input to FastAPI using Axios  
+3️⃣ ML model predicts heating & cooling loads  
+4️⃣ Backend classifies efficiency level  
+5️⃣ Frontend displays predictions & recommendations
 
-Create a virtual environment & install dependencies:
+---
 
-```bash
-python -m venv venv
-source venv/bin/activate   # Linux/Mac
-venv\Scripts\activate      # Windows
-pip install -r requirements.txt
+## 📌 Flowchart
+
 ```
 
-Run the FastAPI server:
+User (React UI)
+|
+v
+Axios → FastAPI Backend → ML Model → Predictions
+|                                 |
++--------- Recommendations --------+
+|
+v
+UI Output Display
+
+````
+
+---
+
+## 📡 API Endpoint
+
+**POST** `/predict`
+
+✅ Example Request:
+
+```json
+{
+  "relative_compactness": 0.82,
+  "surface_area": 660,
+  "wall_area": 330,
+  "roof_area": 165,
+  "orientation": 2,
+  "glazing_area": 0.1,
+  "glazing_area_distribution": 0
+}
+````
+
+✅ Example Response:
+
+```json
+{
+  "Heating_Load": 11.40,
+  "Cooling_Load": 14.06,
+  "Efficiency": "High",
+  "Recommendation": "Optimal performance achieved"
+}
+```
+
+---
+
+## 🧩 Project Structure
+
+```
+project-root/
+│── README.md
+│
+├── backend/
+│   ├── app.py
+│   ├── models/
+│   │   ├── model.pkl
+│   │   └── scaler.pkl
+│   └── requirements.txt
+│
+└── frontend/
+    ├── src/
+    ├── public/
+    └── package.json
+```
+
+---
+
+## ▶️ How to Run
+
+### ✅ Backend (FastAPI)
 
 ```bash
+cd backend
+pip install -r requirements.txt
 uvicorn app:app --reload
 ```
 
-Now open [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) to explore the API interactively.
+### ✅ Frontend (React)
 
----
-
-## 🔌 API Endpoints
-
-### 1️⃣ Root
-
-**GET /**
-Returns a welcome message.
-
-```json
-{
-  "message": "Welcome to Energy Efficiency API!"
-}
-```
-
-### 2️⃣ Predict
-
-**POST /predict**
-Accepts building parameters and returns predictions.
-
-📥 Example Request:
-
-```json
-{
-  "relative_compactness": 0.71,
-  "surface_area": 609.5,
-  "wall_area": 300,
-  "roof_area": 150.25,
-  "overall_height": 3.5,
-  "orientation": 2,
-  "glazing_area": 0.25,
-  "glazing_area_distribution": 2
-}
-```
-
-📤 Example Response:
-
-```json
-{
-  "heating_load": 18.53,
-  "cooling_load": 21.7,
-  "efficiency": "Moderate",
-  "recommendation": "Acceptable, but can be improved"
-}
+```bash
+cd frontend
+npm install
+npm start
 ```
 
 ---
 
-## 🌐 Deployment
+## 🌎 Deployment
 
-The API is deployed on **Render**:
-👉 [Render Link – Coming Soon](#)
+* Frontend: **GitHub Pages**
+* Backend: **Render**
+* Frontend communicates with backend using **public API URL**
+
+Example:
+
+```js
+axios.post("https://your-backend-url/predict", formData)
+```
 
 ---
 
-## 📌 Notes
+## 🎯 Future Enhancements
 
-* Error handling with `HTTPException` for invalid inputs or prediction failures.
-* Logging ensures both input & output are traceable.
-* CORS enabled: ready for frontend integration (React, MERN stack).
+🔹 Add more ML models (XGBoost, Random Forest)
+🔹 Visualize past predictions in dashboard
+🔹 User authentication & database storage
+
+---
+
+## 👥 Authors
+
+* **Govind Singh** – ML + Backend (FastAPI)
+* **Ritik Sharma** – React development
+* **Tavishi Jain** – Interface design
 
 ---
 
 ## 📜 License
 
-This project currently has **no license**.
-⚠️ That means others can see the code but legally **cannot use, modify, or distribute it**.
-If you want it open-source, consider adding one (MIT, Apache 2.0, etc.).
+This project is developed for academic purposes.
 
 ---
 
-## 👤 Author
-
-* **Govind Singh** – MLOps & ML Enthusiast
+### ⭐ If you like this project, please give it a star on GitHub!
 
 ---
 

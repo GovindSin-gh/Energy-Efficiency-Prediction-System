@@ -33,7 +33,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
-      <div className="container mx-auto px-4 py-8 ">
+      <div className="container flex mx-auto px-4 py-8 ">
        {!(error || result) && <PredictionForm onSubmit={handlePrediction} loading={loading} /> } 
         {error && (
           <div className="mt-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md">
